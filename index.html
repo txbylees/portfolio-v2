@@ -730,7 +730,7 @@
     }
 
     .footer-bar {
-      background: rgba(0,0,0,0.3);
+      background: rgba(0,0,0,0.4);
       padding: 24px 80px;
       border-top: 1px solid rgba(255,255,255,0.05);
       display: flex;
@@ -771,33 +771,209 @@
     ::-webkit-scrollbar-thumb { background: rgba(37,99,235,0.4); border-radius: 100px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--blue); }
 
+    /* ===== MOBILE HEADER ===== */
+    .mobile-header {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 64px;
+      background: var(--navy);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 200;
+    }
+
+    .mobile-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .mobile-logo .logo-mark { width: 36px; height: 36px; font-size: 13px; }
+    .mobile-logo-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    .hamburger {
+      width: 40px; height: 40px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 0;
+    }
+    .hamburger span {
+      display: block;
+      width: 18px; height: 2px;
+      background: #fff;
+      border-radius: 2px;
+      transition: all 0.25s var(--ease);
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* Mobile nav overlay */
+    .mobile-nav-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--navy);
+      z-index: 150;
+      display: flex;
+      flex-direction: column;
+      padding: 88px 32px 48px;
+      transform: translateX(-100%);
+      transition: transform 0.35s var(--ease);
+      pointer-events: none;
+    }
+    .mobile-nav-overlay.open {
+      transform: translateX(0);
+      pointer-events: all;
+    }
+
+    .mobile-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .mobile-nav-link {
+      display: block;
+      font-size: 32px;
+      font-weight: 800;
+      color: rgba(255,255,255,0.3);
+      text-decoration: none;
+      letter-spacing: -1px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      transition: color 0.2s var(--ease);
+    }
+    .mobile-nav-link:last-child { border-bottom: none; }
+    .mobile-nav-link:hover { color: #fff; }
+
+    .mobile-nav-close {
+      position: absolute;
+      top: 14px; right: 20px;
+      width: 40px; height: 40px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: rgba(255,255,255,0.7);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
     /* ===== RESPONSIVE ===== */
+
+    /* Tablet */
     @media (max-width: 1100px) {
       .about-grid { grid-template-columns: 1fr; gap: 48px; }
       .clients-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
+    /* Mobile — sidebar hidden, top bar shown */
     @media (max-width: 900px) {
       :root { --sidebar-w: 0px; }
       .sidebar { display: none; }
+      .mobile-header { display: flex; }
       .main { margin-left: 0; width: 100%; }
-      section { padding: 80px 32px; }
-      .hero { padding: 80px 32px; }
+
+      /* Offset content for fixed 64px header */
+      .hero { padding: 124px 32px 80px; }
+      section { padding: 72px 32px; }
+
       .clients-grid { grid-template-columns: 1fr 1fr; }
+
+      /* Case study cards stack */
       .case-card { grid-template-columns: 1fr; }
-      .case-accent { padding: 32px 32px; flex-direction: row; align-items: center; min-height: auto; }
-      .case-number { font-size: 48px; }
-      .case-body { padding: 32px; }
-      .footer-bar { padding: 24px 32px; }
+      .case-accent {
+        padding: 28px 28px;
+        flex-direction: row;
+        align-items: center;
+        gap: 20px;
+        min-height: auto;
+      }
+      .case-label { margin-top: 0; }
+      .case-number { font-size: 40px; letter-spacing: -2px; }
+      .case-body { padding: 28px; }
+      .case-metrics { gap: 20px; }
+      .metric-val { font-size: 22px; }
+
+      .hero-heading { letter-spacing: -1.5px; }
+
+      .footer-bar { padding: 20px 32px; flex-wrap: wrap; gap: 6px; }
     }
 
+    /* Small mobile */
     @media (max-width: 600px) {
+      .hero { padding: 100px 20px 60px; }
+      section { padding: 60px 20px; }
+
       .clients-grid { grid-template-columns: 1fr; }
-      .hero-stats { flex-direction: column; gap: 24px; }
+      .hero-stats { flex-direction: column; gap: 20px; }
+
+      .hero-actions { flex-direction: column; align-items: stretch; }
+      .btn-primary, .btn-secondary { justify-content: center; }
+
+      .skills-grid { grid-template-columns: 1fr; }
+
+      .case-metrics { flex-wrap: wrap; gap: 16px; }
+      .metric { flex: 1 1 60px; }
+
+      .case-accent { flex-direction: column; text-align: center; padding: 24px 20px; gap: 8px; }
+      .case-client-badge { margin-top: 8px; }
+
+      .contact-links { flex-direction: column; }
+      .contact-link { justify-content: center; }
+
+      .footer-bar { flex-direction: column; align-items: center; padding: 20px; }
+    }
+
+    /* Very small phones */
+    @media (max-width: 380px) {
+      .hero { padding: 88px 16px 52px; }
+      section { padding: 52px 16px; }
+      .case-body { padding: 20px 16px; }
     }
   </style>
 </head>
 <body>
+
+  <!-- ===== MOBILE HEADER ===== -->
+  <header class="mobile-header">
+    <div class="mobile-logo">
+      <div class="logo-mark">TL</div>
+      <span class="mobile-logo-name">Toby Lees</span>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <!-- Mobile Nav Overlay -->
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay" aria-hidden="true">
+    <button class="mobile-nav-close" id="mobile-nav-close" aria-label="Close menu">✕</button>
+    <nav class="mobile-nav">
+      <a href="#hero" class="mobile-nav-link">Home</a>
+      <a href="#about" class="mobile-nav-link">About</a>
+      <a href="#clients" class="mobile-nav-link">Clients</a>
+      <a href="#case-studies" class="mobile-nav-link">Case Studies</a>
+      <a href="#contact" class="mobile-nav-link">Contact</a>
+    </nav>
+  </div>
 
   <!-- ===== SIDEBAR ===== -->
   <aside class="sidebar">
@@ -1172,9 +1348,9 @@
       </div>
     </section>
 
-    <div class="footer-bar" style="background: rgba(0,0,0,0.4); padding: 24px 80px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between;">
-      <span style="font-size:12.5px; color: rgba(255,255,255,0.2);">© 2026 Toby Lees. All rights reserved.</span>
-      <span style="font-size:12.5px; color: rgba(255,255,255,0.2);">Junior QA Engineer &amp; Software Tester</span>
+    <div class="footer-bar">
+      <span>© 2026 Toby Lees. All rights reserved.</span>
+      <span>Junior QA Engineer &amp; Software Tester</span>
     </div>
 
   </main>
@@ -1243,6 +1419,31 @@
           target.scrollIntoView({ behavior: 'smooth' });
         }
       });
+    });
+
+    // ===== MOBILE NAV =====
+    const hamburger = document.getElementById('hamburger');
+    const mobileNavOverlay = document.getElementById('mobile-nav-overlay');
+    const mobileNavClose = document.getElementById('mobile-nav-close');
+
+    function openMobileNav() {
+      hamburger.classList.add('open');
+      mobileNavOverlay.classList.add('open');
+      mobileNavOverlay.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileNav() {
+      hamburger.classList.remove('open');
+      mobileNavOverlay.classList.remove('open');
+      mobileNavOverlay.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    hamburger.addEventListener('click', openMobileNav);
+    mobileNavClose.addEventListener('click', closeMobileNav);
+    document.querySelectorAll('.mobile-nav-link').forEach(link => {
+      link.addEventListener('click', closeMobileNav);
     });
   </script>
 </body>
