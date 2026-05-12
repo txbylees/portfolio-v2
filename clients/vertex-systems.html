@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Orbital Commerce — Toby Lees QA Engineer</title>
+  <title>Vertex Systems — Toby Lees QA Engineer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -16,7 +16,7 @@
       --blue-400: #60a5fa; --blue-300: #93c5fd; --blue-100: #dbeafe; --blue-50: #eff6ff;
       --white: #ffffff; --text: #0f172a; --text-muted: #64748b; --border: #e2e8f0;
       --sidebar-w: 260px; --ease: cubic-bezier(0.4, 0, 0.2, 1);
-      --client-a: #5b21b6; --client-b: #7c3aed;
+      --client-a: #78350f; --client-b: #b45309;
     }
     .sidebar { position: fixed; left: 0; top: 0; width: var(--sidebar-w); height: 100vh; background: var(--navy); display: flex; flex-direction: column; padding: 40px 32px; z-index: 100; border-right: 1px solid rgba(255,255,255,0.05); }
     .sidebar-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 56px; text-decoration: none; }
@@ -105,25 +105,25 @@
 </head>
 <body>
   <header class="mobile-header">
-    <a href="index.html" class="mobile-logo"><div class="logo-mark">TL</div><span class="mobile-logo-name">Toby Lees</span></a>
+    <a href="../index.html" class="mobile-logo"><div class="logo-mark">TL</div><span class="mobile-logo-name">Toby Lees</span></a>
     <button class="hamburger" id="hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
   </header>
   <div class="mobile-nav-overlay" id="mobile-nav-overlay" aria-hidden="true">
     <button class="mobile-nav-close" id="mobile-nav-close" aria-label="Close menu">✕</button>
     <nav class="mobile-nav">
-      <a href="index.html" class="mobile-nav-link">Home</a>
+      <a href="../index.html" class="mobile-nav-link">Home</a>
       <a href="index.html#about" class="mobile-nav-link">About</a>
-      <a href="clients.html" class="mobile-nav-link active">Clients</a>
+      <a href="index.html" class="mobile-nav-link active">Clients</a>
       <a href="index.html#case-studies" class="mobile-nav-link">Case Studies</a>
       <a href="index.html#contact" class="mobile-nav-link">Contact</a>
     </nav>
   </div>
   <aside class="sidebar">
-    <a href="index.html" class="sidebar-logo"><div class="logo-mark">TL</div><div class="logo-name"><span>Toby Lees</span><span>QA Engineer</span></div></a>
+    <a href="../index.html" class="sidebar-logo"><div class="logo-mark">TL</div><div class="logo-name"><span>Toby Lees</span><span>QA Engineer</span></div></a>
     <nav class="sidebar-nav">
-      <a href="index.html" class="nav-link"><span class="nav-label">Home</span></a>
+      <a href="../index.html" class="nav-link"><span class="nav-label">Home</span></a>
       <a href="index.html#about" class="nav-link"><span class="nav-label">About</span></a>
-      <a href="clients.html" class="nav-link active"><span class="nav-label">Clients</span></a>
+      <a href="index.html" class="nav-link active"><span class="nav-label">Clients</span></a>
       <a href="index.html#case-studies" class="nav-link"><span class="nav-label">Case Studies</span></a>
       <a href="index.html#contact" class="nav-link"><span class="nav-label">Contact</span></a>
     </nav>
@@ -142,23 +142,23 @@
       <div class="hero-grid"></div>
       <div class="hero-orb"></div>
       <div class="hero-content">
-        <a href="clients.html" class="back-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back to Clients</a>
-        <p class="hero-label">Client Work — E-Commerce</p>
-        <h1 class="hero-heading">Orbital Commerce</h1>
-        <p class="hero-sub">A ground-up regression suite rebuild for a high-traffic e-commerce platform — delivering zero P1 bugs at their biggest ever peak season launch.</p>
+        <a href="index.html" class="back-link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back to Clients</a>
+        <p class="hero-label">Client Work — Enterprise SaaS</p>
+        <h1 class="hero-heading">Vertex Systems</h1>
+        <p class="hero-sub">Building an API testing framework from scratch — turning an untested backend into a 91%-covered, CI-integrated system that stopped production incidents before they started.</p>
         <div class="hero-meta">
-          <span class="hero-chip"><span class="hero-chip-dot"></span>Automation</span>
-          <span class="hero-chip"><span class="hero-chip-dot"></span>CI/CD Integration</span>
-          <span class="hero-chip"><span class="hero-chip-dot"></span>E-Commerce</span>
+          <span class="hero-chip"><span class="hero-chip-dot"></span>API Testing</span>
+          <span class="hero-chip"><span class="hero-chip-dot"></span>Postman &amp; Newman</span>
+          <span class="hero-chip"><span class="hero-chip-dot"></span>Enterprise SaaS</span>
         </div>
       </div>
     </div>
 
     <div class="metrics-strip">
-      <div class="metric-item"><div class="metric-val"><span>85</span>%</div><div class="metric-label">Test Coverage</div></div>
-      <div class="metric-item"><div class="metric-val"><span>60</span>%</div><div class="metric-label">Faster Regression</div></div>
-      <div class="metric-item"><div class="metric-val"><span>0</span></div><div class="metric-label">P1 Bugs at Launch</div></div>
-      <div class="metric-item"><div class="metric-val"><span>200</span>+</div><div class="metric-label">Automated Test Cases</div></div>
+      <div class="metric-item"><div class="metric-val"><span>120</span>+</div><div class="metric-label">API Tests Written</div></div>
+      <div class="metric-item"><div class="metric-val"><span>91</span>%</div><div class="metric-label">Endpoint Coverage</div></div>
+      <div class="metric-item"><div class="metric-val"><span>4</span>x</div><div class="metric-label">Fewer Prod Issues</div></div>
+      <div class="metric-item"><div class="metric-val"><span>0</span></div><div class="metric-label">Untested Core Flows</div></div>
     </div>
 
     <div class="content">
@@ -166,46 +166,46 @@
         <div class="content-main">
           <div class="reveal">
             <p class="content-label">The Challenge</p>
-            <h2 class="content-heading">Peak season approaching with no reliable regression safety net</h2>
-            <p class="content-body">Orbital Commerce had a high-traffic platform with a major sale event six weeks away. They were simultaneously shipping new features and had no formal regression suite — every release was manual, slow, and anxiety-inducing for the development team. A previous peak season had resulted in a high-profile checkout bug that cost the business significantly.</p>
-            <p class="content-body">The challenge was not just building a test suite, but doing it fast enough to be useful for the upcoming launch while also integrating it into their existing CI/CD pipeline so it would persist as a long-term asset.</p>
+            <h2 class="content-heading">Production failures caused by backend changes with no API test coverage</h2>
+            <p class="content-body">Vertex Systems had a mature SaaS product but zero formal API testing. New backend releases regularly introduced unexpected regressions that were only caught in production — often by customers. The team was aware of the risk but had never had the bandwidth to build a proper test framework.</p>
+            <p class="content-body">The core challenge was not just writing tests, but designing a framework architecture that would survive team turnover, be maintainable by developers without QA experience, and integrate cleanly into their existing deployment pipeline.</p>
           </div>
 
           <div class="divider"></div>
 
           <div class="reveal reveal-delay-1">
             <p class="content-label">The Approach</p>
-            <h2 class="content-heading">Risk-first automation with CI/CD integration from day one</h2>
-            <p class="content-body">Given the time pressure, I prioritised risk-based coverage — mapping the highest-value user journeys first (checkout, product browsing, account management) and working outward from there. Every test was written with CI/CD integration in mind from the start.</p>
+            <h2 class="content-heading">A structured Postman framework designed for longevity</h2>
+            <p class="content-body">I approached this as an infrastructure project as much as a testing project. The framework needed to be something the team could own and grow — not a black box that only I understood.</p>
           </div>
 
           <div class="phase-list reveal reveal-delay-2">
             <div class="phase">
               <div class="phase-num">01</div>
               <div class="phase-content">
-                <h4>Risk Mapping</h4>
-                <p>Identified and prioritised the top 20 highest-risk user journeys based on business impact and historical defect data. Checkout, payment processing, and inventory management were the first areas targeted.</p>
+                <h4>Endpoint Audit &amp; Documentation</h4>
+                <p>Catalogued all API endpoints across the platform — many of which had no documentation. Worked with backend developers to understand expected request/response contracts, authentication patterns, and error states.</p>
               </div>
             </div>
             <div class="phase">
               <div class="phase-num">02</div>
               <div class="phase-content">
-                <h4>Cypress Suite Build</h4>
-                <p>Built 200+ end-to-end test cases in Cypress, organised into feature suites with shared fixtures and custom commands to keep the suite maintainable as the product evolved. Tests ran in under 12 minutes total.</p>
+                <h4>Framework Architecture</h4>
+                <p>Designed a Postman collection structure with environments, shared variables, and pre-request scripts — enabling the same tests to run against dev, staging, and production with a single environment switch.</p>
               </div>
             </div>
             <div class="phase">
               <div class="phase-num">03</div>
               <div class="phase-content">
-                <h4>GitHub Actions Integration</h4>
-                <p>Integrated the test suite into the client's GitHub Actions pipeline — running smoke tests on every PR and the full regression suite nightly. Failures blocked merges, giving the team immediate feedback on breakage.</p>
+                <h4>Test Suite Implementation</h4>
+                <p>Wrote 120+ test cases covering happy paths, error handling, authentication failures, boundary values, and data validation. Each test included assertions on status codes, response schema, and field-level data accuracy.</p>
               </div>
             </div>
             <div class="phase">
               <div class="phase-num">04</div>
               <div class="phase-content">
-                <h4>Pre-Launch Regression Blitz</h4>
-                <p>Ran three full regression cycles in the week before launch — including manual exploratory passes on top of the automated suite. Caught and closed 14 bugs before any customers were affected.</p>
+                <h4>Newman CI Integration</h4>
+                <p>Automated collection execution via Newman, integrated into the CI pipeline so the full API test suite ran on every deployment. HTML reports were generated automatically and linked from build outputs for easy review.</p>
               </div>
             </div>
           </div>
@@ -214,29 +214,29 @@
 
           <div class="reveal reveal-delay-1">
             <p class="content-label">The Result</p>
-            <h2 class="content-heading">The cleanest launch the team had ever shipped</h2>
-            <p class="content-body">The peak season launch went live with zero P1 bugs — the first time in three years the team hadn't had a critical incident on launch day. The automated suite reduced regression time by 60%, freeing engineers to focus on feature work rather than manual testing. 85% coverage was maintained across the entire checkout and fulfilment flow.</p>
-            <p class="content-body">The suite remained in active use after the engagement, with the team maintaining and extending it independently following a handover session.</p>
+            <h2 class="content-heading">Production API incidents reduced by 4x in one quarter</h2>
+            <p class="content-body">Within the first quarter after rollout, production incidents caused by API regressions dropped by 75%. The team caught breaking changes in the pipeline before they reached any environment customers could see. 91% of endpoints were covered — with the remaining 9% being legacy internal tooling marked for deprecation.</p>
+            <p class="content-body">A handover workshop ensured the team could maintain, extend, and debug the framework independently. The collection grew by 30% in the following quarter as the team added tests for new endpoints themselves.</p>
           </div>
         </div>
 
         <div>
           <div class="detail-card reveal">
             <div class="detail-card-heading">Project Details</div>
-            <div class="detail-row"><span class="detail-key">Client</span><span class="detail-val">Orbital Commerce</span></div>
-            <div class="detail-row"><span class="detail-key">Industry</span><span class="detail-val">E-Commerce</span></div>
-            <div class="detail-row"><span class="detail-key">Scope</span><span class="detail-val">Automation &amp; CI Integration</span></div>
-            <div class="detail-row"><span class="detail-key">Platforms</span><span class="detail-val">Web (All Browsers)</span></div>
-            <div class="detail-row"><span class="detail-key">Tools Used</span><span class="detail-val">Cypress, GitHub Actions, JIRA</span></div>
+            <div class="detail-row"><span class="detail-key">Client</span><span class="detail-val">Vertex Systems</span></div>
+            <div class="detail-row"><span class="detail-key">Industry</span><span class="detail-val">Enterprise SaaS</span></div>
+            <div class="detail-row"><span class="detail-key">Scope</span><span class="detail-val">API Testing Framework</span></div>
+            <div class="detail-row"><span class="detail-key">Platforms</span><span class="detail-val">REST API</span></div>
+            <div class="detail-row"><span class="detail-key">Tools Used</span><span class="detail-val">Postman, Newman, CI Pipeline</span></div>
             <div class="tags-block">
               <div class="tags-block-heading">Skills</div>
               <div class="tags-wrap">
-                <span class="tag">Cypress</span>
-                <span class="tag">CI/CD</span>
-                <span class="tag">Automation</span>
-                <span class="tag">Performance</span>
-                <span class="tag">GitHub Actions</span>
-                <span class="tag">E2E Testing</span>
+                <span class="tag">Postman</span>
+                <span class="tag">Newman</span>
+                <span class="tag">REST APIs</span>
+                <span class="tag">CI Integration</span>
+                <span class="tag">Data Validation</span>
+                <span class="tag">API Testing</span>
               </div>
             </div>
           </div>
