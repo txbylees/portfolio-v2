@@ -1,8 +1,8 @@
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
 import { KeyManager } from './key-manager'
+import { NavHeader } from '@/components/nav-header'
 
 export default async function KeysPage({
   params,
@@ -33,7 +33,8 @@ export default async function KeysPage({
     orderBy: { createdAt: 'desc' },
   })
 
-  const serialisedKeys = keys.map((k) => ({
+  type RawKey = typeof keys[number]
+  const serialisedKeys = keys.map((k: RawKey) => ({
     ...k,
     lastUsedAt: k.lastUsedAt?.toISOString() ?? null,
     createdAt: k.createdAt.toISOString(),
@@ -41,15 +42,13 @@ export default async function KeysPage({
 
   return (
     <main className="min-h-screen bg-gray-950 text-white">
-      <header className="border-b border-gray-800 px-8 py-4">
-        <nav className="text-sm text-gray-400">
-          <Link href={`/${orgSlug}`} className="hover:text-white">{org.name}</Link>
-          <span className="mx-2">/</span>
-          <Link href={`/${orgSlug}/${projectSlug}`} className="hover:text-white">{project.name}</Link>
-          <span className="mx-2">/</span>
-          <span className="text-white">API keys</span>
-        </nav>
-      </header>
+      <NavHeader
+        crumbs={[
+          { label: org.name, href: `/${orgSlug}` },
+          { label: project.name, href: `/${orgSlug}/${projectSlug}` },
+          { label: 'API keys' },
+        ]}
+      />
 
       <div className="mx-auto max-w-3xl px-8 py-10">
         <h1 className="mb-8 text-2xl font-bold">API keys</h1>
