@@ -1,9 +1,10 @@
-import { auth } from '@/lib/auth'
+import NextAuth from 'next-auth'
+import { authConfig } from '@/lib/auth.config'
 import { NextResponse } from 'next/server'
 
-// No authentication required
+const { auth } = NextAuth(authConfig)
+
 const PUBLIC_PATHS = ['/sign-in', '/sign-up', '/test']
-// Authenticated users are redirected away from these (e.g. sign-in when already logged in)
 const AUTH_ONLY_PATHS = ['/sign-in', '/sign-up']
 
 export default auth((req) => {
@@ -24,6 +25,5 @@ export default auth((req) => {
 })
 
 export const config = {
-  // Exclude NextAuth API routes, ingest routes, and Next.js internals
   matcher: ['/((?!api/auth|api/ingest|_next/static|_next/image|favicon.ico).*)'],
 }
