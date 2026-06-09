@@ -10,7 +10,7 @@ const AUTH_ONLY_PATHS = ['/sign-in', '/sign-up']
 export default auth((req) => {
   const { pathname } = req.nextUrl
   const isAuthenticated = !!req.auth
-  const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p))
+  const isPublic = pathname === '/' || PUBLIC_PATHS.some((p) => p !== '/' && pathname.startsWith(p))
   const isAuthOnly = AUTH_ONLY_PATHS.some((p) => pathname.startsWith(p))
 
   if (!isAuthenticated && !isPublic) {
@@ -25,5 +25,5 @@ export default auth((req) => {
 })
 
 export const config = {
-  matcher: ['/((?!api/auth|api/ingest|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!api/auth|api/ingest|api/bugs/ingest|_next/static|_next/image|favicon.ico).*)'],
 }

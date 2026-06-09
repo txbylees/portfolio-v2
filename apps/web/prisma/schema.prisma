@@ -90,6 +90,7 @@ model Project {
   organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
   apiKeys        ApiKey[]
   sessions       Session[]
+  bugs           Bug[]
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
@@ -115,6 +116,74 @@ model ApiKey {
   @@index([projectId])
   @@map("ApiKey")
 }
+
+// ─── Bug capture models ───────────────────────────────────────────────────────
+
+model Bug {
+  id                String      @id @default(cuid())
+  projectId         String
+  status            BugStatus   @default(OPEN)
+  pageUrl           String
+  pageTitle         String?
+  userAgent         String
+  screenWidth       Int
+  screenHeight      Int
+  viewportWidth     Int?
+  viewportHeight    Int?
+  rrwebEvents       Json
+  consoleLogs       Json
+  networkFails      Json
+  screenshotDataUrl String?     @db.Text
+  playwrightScript  String?     @db.Text
+  project           Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  report            BugReport?
+  messages          BugMessage[]
+  capturedAt        DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  @@index([projectId])
+  @@index([projectId, capturedAt])
+}
+
+enum BugStatus {
+  OPEN
+  IN_PROGRESS
+  FIXED
+  CLOSED
+  DUPLICATE
+}
+
+model BugReport {
+  id                 String   @id @default(cuid())
+  bugId              String   @unique
+  title              String
+  summary            String   @db.Text
+  stepsToReproduce   Json
+  expectedBehaviour  String   @db.Text
+  actualBehaviour    String   @db.Text
+  suspectedCause     String?  @db.Text
+  severity           String
+  bug                Bug      @relation(fields: [bugId], references: [id], onDelete: Cascade)
+  generatedAt        DateTime @default(now())
+}
+
+model BugMessage {
+  id        String      @id @default(cuid())
+  bugId     String
+  role      MessageRole
+  content   String      @db.Text
+  bug       Bug         @relation(fields: [bugId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+
+  @@index([bugId])
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+}
+
+// ─── Session recording models ─────────────────────────────────────────────────
 
 model Session {
   id              String           @id @default(cuid())

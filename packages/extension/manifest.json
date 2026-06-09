@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "Reprod",
+  "version": "1.0.0",
+  "description": "AI-powered bug reproduction for QA testers. Capture, report, and reproduce bugs instantly.",
+  "permissions": ["activeTab", "storage", "tabs", "scripting", "notifications"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Reprod — Capture Bug"
+  },
+  "commands": {
+    "capture-bug": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+U"
+      },
+      "description": "Capture bug with full context"
+    }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["injected.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

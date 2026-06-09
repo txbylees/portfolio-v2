@@ -1,0 +1,17 @@
+{
+  "name": "@reprod/extension",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs --watch"
+  },
+  "dependencies": {
+    "rrweb": "^1.1.3"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.268",
+    "esbuild": "^0.24.0",
+    "typescript": "^5"
+  }
+}

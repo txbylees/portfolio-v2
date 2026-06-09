@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2",
+    "@google/generative-ai": "^0.24.1",
     "@prisma/client": "^6",
     "@reprod/sdk": "workspace:*",
     "@reprod/shared": "workspace:*",
