@@ -84,7 +84,7 @@ export default async function ProjectPage({
     recentSessions,
     openBugCount,
     inProgressBugCount,
-    sessionsThisWeek,
+    bugsThisWeek,
   ] = await Promise.all([
     db.bug.findMany({
       where: { projectId: project.id },
@@ -107,7 +107,7 @@ export default async function ProjectPage({
     }),
     db.bug.count({ where: { projectId: project.id, status: 'OPEN' } }),
     db.bug.count({ where: { projectId: project.id, status: 'IN_PROGRESS' } }),
-    db.session.count({ where: { projectId: project.id, startedAt: { gte: oneWeekAgo } } }),
+    db.bug.count({ where: { projectId: project.id, capturedAt: { gte: oneWeekAgo } } }),
   ])
 
   const hasData = project._count.bugs > 0 || project._count.sessions > 0
@@ -158,12 +158,6 @@ export default async function ProjectPage({
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[
             {
-              label: 'Sessions this week',
-              value: sessionsThisWeek,
-              sub: `${project._count.sessions} all time`,
-              dot: 'bg-green-500',
-            },
-            {
               label: 'Open bugs',
               value: openBugCount,
               sub: `${project._count.bugs} total`,
@@ -176,6 +170,13 @@ export default async function ProjectPage({
               sub: 'being worked on',
               dot: 'bg-amber-400',
               href: `/${orgSlug}/${projectSlug}/bugs?status=IN_PROGRESS`,
+            },
+            {
+              label: 'Captured this week',
+              value: bugsThisWeek,
+              sub: 'last 7 days',
+              dot: 'bg-green-500',
+              href: `/${orgSlug}/${projectSlug}/bugs`,
             },
             {
               label: 'API keys',

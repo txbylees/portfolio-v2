@@ -199,21 +199,62 @@ export default async function BugsPage({
         )}
 
         {/* ── Bug list ── */}
-        {bugs.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-gray-300 bg-white p-12 text-center">
-            <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-green-50">
-              <svg className="h-5 w-5 text-green-700" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 12.75c1.148 0 2.278.08 3.383.237 1.037.146 1.866.966 1.866 2.013 0 3.728-2.35 6.75-5.25 6.75S6.75 18.728 6.75 15c0-1.047.83-1.867 1.866-2.013A24.204 24.204 0 0 1 12 12.75Zm0 0c2.883 0 5.647.508 8.207 1.44a23.91 23.91 0 0 1-1.152 6.06M12 12.75c-2.883 0-5.647.508-8.208 1.44.125 2.104.52 4.136 1.153 6.06M12 12.75a2.25 2.25 0 0 0 2.248-2.354M12 12.75a2.25 2.25 0 0 1-2.248-2.354M12 8.25c.995 0 1.971-.08 2.922-.236.403-.066.74-.358.795-.762a3.778 3.778 0 0 0-.399-2.25M12 8.25c-.995 0-1.97-.08-2.922-.236-.402-.066-.74-.358-.795-.762a3.734 3.734 0 0 1 .4-2.253M12 8.25a2.25 2.25 0 0 0-2.248 2.146M12 8.25a2.25 2.25 0 0 1 2.248 2.146" />
-              </svg>
+        {bugs.length === 0 && !activeStatus ? (
+          <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
+            <div className="mx-auto max-w-md text-center">
+              <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-green-50">
+                <svg className="h-5 w-5 text-green-700" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-gray-900">Capture your first bug</h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Three steps and you&apos;re reporting bugs in seconds, not screenshots.
+              </p>
             </div>
+
+            <ol className="mx-auto mt-6 max-w-md space-y-3">
+              {([
+                {
+                  title: 'Install the Reprod extension',
+                  body: 'Load it in Chrome — it quietly keeps the last 60 seconds of your session.',
+                },
+                {
+                  title: 'Add your API key',
+                  body: 'Generate a key for this project and paste it into the extension popup.',
+                  link: { href: `/${orgSlug}/${projectSlug}/keys`, label: 'Get your API key →' },
+                },
+                {
+                  title: 'Spot a bug? Press Ctrl+Shift+U',
+                  body: 'Replay, console errors, failed requests and a screenshot land here instantly.',
+                },
+              ] as Array<{ title: string; body: string; link?: { href: string; label: string } }>).map((step, i) => (
+                <li key={i} className="flex gap-3 rounded-lg border border-gray-100 bg-gray-50/60 px-4 py-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-100 text-xs font-bold text-green-800">
+                    {i + 1}
+                  </span>
+                  <div>
+                    <p className="text-sm font-medium text-gray-800">{step.title}</p>
+                    <p className="mt-0.5 text-xs text-gray-500">{step.body}</p>
+                    {step.link && (
+                      <Link
+                        href={step.link.href}
+                        className="mt-1.5 inline-block text-xs font-semibold text-green-700 hover:text-green-600"
+                      >
+                        {step.link.label}
+                      </Link>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ) : bugs.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-gray-300 bg-white p-12 text-center">
             <p className="font-medium text-gray-600">
-              {activeStatus ? `No ${STATUS_LABELS[activeStatus].toLowerCase()} bugs` : 'No bugs captured yet'}
+              No {STATUS_LABELS[activeStatus!].toLowerCase()} bugs
             </p>
-            <p className="mt-1 text-sm text-gray-400">
-              {activeStatus
-                ? 'Try a different filter above.'
-                : 'Press Ctrl+Shift+U in the extension to capture your first bug.'}
-            </p>
+            <p className="mt-1 text-sm text-gray-400">Try a different filter above.</p>
           </div>
         ) : (
           <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">

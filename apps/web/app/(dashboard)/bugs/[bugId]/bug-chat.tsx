@@ -79,6 +79,8 @@ export default function BugChat({
   const [status, setStatus] = useState<BugStatus>(initialStatus)
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
+  const [chatError, setChatError] = useState<string | null>(null)
+  const [ticketTimedOut, setTicketTimedOut] = useState(false)
   const [showScreenshot, setShowScreenshot] = useState(false)
   const [showScript, setShowScript] = useState(false)
   const [exportModal, setExportModal] = useState<'github' | 'jira' | 'clickup' | null>(null)
@@ -104,7 +106,14 @@ export default function BugChat({
     const hasUserMessage = messages.some((m) => m.role === 'USER')
     if (!hasUserMessage) return
 
+    let attempts = 0
     const poll = setInterval(async () => {
+      attempts += 1
+      if (attempts > 20) {
+        clearInterval(poll)
+        setTicketTimedOut(true)
+        return
+      }
       const res = await fetch(`/api/bugs/${bugId}/ticket`)
       if (res.ok) {
         const data = (await res.json()) as {
@@ -114,6 +123,7 @@ export default function BugChat({
         if (data.report) {
           setReport(data.report)
           setPlaywrightScript(data.playwrightScript)
+          setTicketTimedOut(false)
           clearInterval(poll)
         }
       }
@@ -129,6 +139,7 @@ export default function BugChat({
     const userMessage = input.trim()
     setInput('')
     setSending(true)
+    setChatError(null)
 
     const optimistic: Message = { role: 'USER', content: userMessage, createdAt: new Date() }
     setMessages((prev) => [...prev, optimistic])
@@ -146,7 +157,13 @@ export default function BugChat({
           ...prev,
           { role: 'ASSISTANT', content: message, createdAt: new Date() },
         ])
+      } else {
+        setChatError(
+          'The assistant couldn’t reply — your message was saved, but the AI service is unavailable right now.'
+        )
       }
+    } catch {
+      setChatError('Couldn’t reach the server. Check your connection and try again.')
     } finally {
       setSending(false)
     }
@@ -252,7 +269,14 @@ export default function BugChat({
 
           <div className="flex max-h-[420px] flex-col gap-3 overflow-y-auto p-4">
             {messages.length === 0 && (
-              <p className="text-center text-sm text-gray-400">Analysing your bug…</p>
+              <div className="rounded-lg bg-gray-50 px-4 py-3 text-center">
+                <p className="text-sm text-gray-500">
+                  Automatic analysis isn’t available for this bug.
+                </p>
+                <p className="mt-0.5 text-xs text-gray-400">
+                  Describe what you were testing and what you expected to happen below.
+                </p>
+              </div>
             )}
             {messages.map((msg, i) => (
               <div
@@ -275,6 +299,14 @@ export default function BugChat({
                 <div className="rounded-2xl rounded-bl-sm bg-gray-100 px-4 py-2.5 text-sm text-gray-400">
                   Thinking…
                 </div>
+              </div>
+            )}
+            {chatError && (
+              <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5">
+                <svg className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                </svg>
+                <p className="text-xs leading-relaxed text-amber-700">{chatError}</p>
               </div>
             )}
             <div ref={messagesEndRef} />
@@ -410,7 +442,14 @@ export default function BugChat({
           </div>
         ) : (
           <div className="rounded-xl border border-dashed border-gray-200 bg-white p-6 text-center">
-            {messages.some((m) => m.role === 'USER') ? (
+            {ticketTimedOut ? (
+              <>
+                <p className="text-sm font-medium text-gray-600">Report not generated</p>
+                <p className="mt-1 text-xs text-gray-400">
+                  The AI service is unavailable right now — your bug and notes are saved, so you can retry later.
+                </p>
+              </>
+            ) : messages.some((m) => m.role === 'USER') ? (
               <>
                 <div className="mx-auto mb-2 h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
                 <p className="text-sm text-gray-500">Generating bug report…</p>
