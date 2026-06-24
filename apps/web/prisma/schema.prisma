@@ -89,7 +89,7 @@ model Project {
   webhookUrl     String?
   organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
   apiKeys        ApiKey[]
-  sessions       Session[]
+  bugs           Bug[]
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
@@ -116,69 +116,68 @@ model ApiKey {
   @@map("ApiKey")
 }
 
-model Session {
-  id              String           @id @default(cuid())
-  projectId       String
-  url             String
-  userAgent       String
-  screenWidth     Int
-  screenHeight    Int
-  project         Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  events          SessionEvent[]
-  consoleLogs     ConsoleLog[]
-  networkRequests NetworkRequest[]
-  startedAt       DateTime         @default(now())
-  // Updated with each ingest chunk — used to detect stale/closed sessions
-  lastEventAt     DateTime         @default(now())
+// ─── Bug capture models ───────────────────────────────────────────────────────
+
+model Bug {
+  id                String      @id @default(cuid())
+  projectId         String
+  status            BugStatus   @default(OPEN)
+  pageUrl           String
+  pageTitle         String?
+  userAgent         String
+  screenWidth       Int
+  screenHeight      Int
+  viewportWidth     Int?
+  viewportHeight    Int?
+  rrwebEvents       Json
+  consoleLogs       Json
+  networkFails      Json
+  screenshotDataUrl String?     @db.Text
+  playwrightScript  String?     @db.Text
+  project           Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  report            BugReport?
+  messages          BugMessage[]
+  capturedAt        DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
 
   @@index([projectId])
-  @@index([projectId, startedAt])
+  @@index([projectId, capturedAt])
 }
 
-model SessionEvent {
-  id        String  @id @default(cuid())
-  sessionId String
-  type      Int
-  data      Json
-  // BigInt: rrweb timestamps are ms since epoch — exceeds Int32 range
-  timestamp BigInt
-  // Chunk sequence number — used to reassemble events in order
-  sequence  Int
-  session   Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-
-  @@index([sessionId, sequence])
+enum BugStatus {
+  OPEN
+  IN_PROGRESS
+  FIXED
+  CLOSED
+  DUPLICATE
 }
 
-model ConsoleLog {
-  id        String   @id @default(cuid())
-  sessionId String
-  level     LogLevel
-  message   String
-  stack     String?
-  timestamp BigInt
-  session   Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-
-  @@index([sessionId])
+model BugReport {
+  id                 String   @id @default(cuid())
+  bugId              String   @unique
+  title              String
+  summary            String   @db.Text
+  stepsToReproduce   Json
+  expectedBehaviour  String   @db.Text
+  actualBehaviour    String   @db.Text
+  suspectedCause     String?  @db.Text
+  severity           String
+  bug                Bug      @relation(fields: [bugId], references: [id], onDelete: Cascade)
+  generatedAt        DateTime @default(now())
 }
 
-enum LogLevel {
-  ERROR
-  WARN
+model BugMessage {
+  id        String      @id @default(cuid())
+  bugId     String
+  role      MessageRole
+  content   String      @db.Text
+  bug       Bug         @relation(fields: [bugId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+
+  @@index([bugId])
 }
 
-model NetworkRequest {
-  id           String  @id @default(cuid())
-  sessionId    String
-  url          String
-  method       String
-  status       Int
-  duration     Int
-  timestamp    BigInt
-  requestBody  String?
-  responseBody String?
-  session      Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-
-  @@index([sessionId])
-  // Enables fast "show me all 500s in this session" queries
-  @@index([sessionId, status])
+enum MessageRole {
+  USER
+  ASSISTANT
 }
