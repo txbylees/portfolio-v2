@@ -20,6 +20,7 @@ interface BugReport {
 }
 
 interface BugChatProps {
+  aiEnabled: boolean
   bugId: string
   initialMessages: Message[]
   initialReport: BugReport | null
@@ -59,6 +60,7 @@ const STATUS_COLORS: Record<BugStatus, string> = {
 }
 
 export default function BugChat({
+  aiEnabled,
   bugId,
   initialMessages,
   initialReport,
@@ -226,12 +228,35 @@ export default function BugChat({
     }
   }
 
-  const consolErrors = consoleLogs.filter(
-    (l) => l.level === 'error' || l.level === 'ERROR'
-  )
-  const browserStr = userAgent.match(/Chrome\/([\d.]+)/)?.[0]
-    ?? userAgent.match(/Firefox\/([\d.]+)/)?.[0]
-    ?? userAgent.slice(0, 60)
+  // ── Capture-only view when the AI layer is disabled ──
+  if (!aiEnabled) {
+    return (
+      <div className="mx-auto flex max-w-2xl flex-col gap-4">
+        <StatusCard
+          status={status}
+          saving={statusSaving}
+          saved={statusSaved}
+          onUpdate={updateStatus}
+        />
+        {screenshotDataUrl && (
+          <ScreenshotCard
+            screenshotDataUrl={screenshotDataUrl}
+            open={showScreenshot}
+            onToggle={() => setShowScreenshot((v) => !v)}
+          />
+        )}
+        <TechnicalDetails
+          pageUrl={pageUrl}
+          userAgent={userAgent}
+          screenWidth={screenWidth}
+          screenHeight={screenHeight}
+          formattedDate={formattedDate}
+          consoleLogs={consoleLogs}
+          networkFails={networkFails}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-6 lg:flex-row">
@@ -239,25 +264,11 @@ export default function BugChat({
       <div className="flex flex-1 flex-col gap-4 min-w-0">
         {/* Screenshot */}
         {screenshotDataUrl && (
-          <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-            <button
-              onClick={() => setShowScreenshot((v) => !v)}
-              className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              <span>Screenshot</span>
-              <span className="text-gray-400">{showScreenshot ? '▲' : '▼'}</span>
-            </button>
-            {showScreenshot && (
-              <div className="border-t border-gray-100 p-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={screenshotDataUrl}
-                  alt="Bug screenshot"
-                  className="w-full rounded-lg border border-gray-100 shadow-sm"
-                />
-              </div>
-            )}
-          </div>
+          <ScreenshotCard
+            screenshotDataUrl={screenshotDataUrl}
+            open={showScreenshot}
+            onToggle={() => setShowScreenshot((v) => !v)}
+          />
         )}
 
         {/* Chat */}
@@ -334,35 +345,12 @@ export default function BugChat({
       {/* ── Right column: ticket + details + export ── */}
       <div className="flex w-full flex-col gap-4 lg:w-80 xl:w-96 shrink-0">
         {/* Status */}
-        <div className="rounded-xl border border-gray-200 bg-white px-4 py-4">
-          <div className="mb-2.5 flex items-center justify-between">
-            <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Status</span>
-            {statusSaving && <span className="text-xs text-gray-400">Saving…</span>}
-            {statusSaved && (
-              <span className="flex items-center gap-1 text-xs text-green-600">
-                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                </svg>
-                Saved
-              </span>
-            )}
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {(Object.entries(STATUS_LABELS) as [BugStatus, string][]).map(([val, label]) => (
-              <button
-                key={val}
-                onClick={() => updateStatus(val)}
-                className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-all ${
-                  val === status
-                    ? `${STATUS_COLORS[val]} ring-2 ring-offset-1 ring-current`
-                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
+        <StatusCard
+          status={status}
+          saving={statusSaving}
+          saved={statusSaved}
+          onUpdate={updateStatus}
+        />
 
         {/* Generated Ticket */}
         {report ? (
@@ -496,63 +484,15 @@ export default function BugChat({
         )}
 
         {/* Technical Details */}
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-          <div className="border-b border-gray-100 px-4 py-3">
-            <p className="text-sm font-medium text-gray-700">Technical Details</p>
-          </div>
-          <div className="space-y-3 p-4 text-xs text-gray-600">
-            <div className="flex gap-2">
-              <span className="font-medium text-gray-400 w-16 shrink-0">URL</span>
-              <span className="break-all">{pageUrl}</span>
-            </div>
-            <div className="flex gap-2">
-              <span className="font-medium text-gray-400 w-16 shrink-0">Browser</span>
-              <span className="break-all">{browserStr}</span>
-            </div>
-            <div className="flex gap-2">
-              <span className="font-medium text-gray-400 w-16 shrink-0">Screen</span>
-              <span>{screenWidth}×{screenHeight}</span>
-            </div>
-            <div className="flex gap-2">
-              <span className="font-medium text-gray-400 w-16 shrink-0">Captured</span>
-              <span>{formattedDate}</span>
-            </div>
-            {consolErrors.length > 0 && (
-              <div>
-                <p className="mb-1 font-medium text-red-500">
-                  {consolErrors.length} console error{consolErrors.length !== 1 ? 's' : ''}
-                </p>
-                <div className="space-y-1">
-                  {consolErrors.slice(0, 3).map((e, i) => (
-                    <p key={i} className="truncate rounded bg-red-50 px-2 py-1 text-red-700">
-                      {e.message}
-                    </p>
-                  ))}
-                  {consolErrors.length > 3 && (
-                    <p className="text-gray-400">+{consolErrors.length - 3} more</p>
-                  )}
-                </div>
-              </div>
-            )}
-            {networkFails.length > 0 && (
-              <div>
-                <p className="mb-1 font-medium text-amber-600">
-                  {networkFails.length} failed request{networkFails.length !== 1 ? 's' : ''}
-                </p>
-                <div className="space-y-1">
-                  {networkFails.slice(0, 3).map((n, i) => (
-                    <p key={i} className="truncate rounded bg-amber-50 px-2 py-1 text-amber-700">
-                      {n.method} {n.url.split('/').slice(-2).join('/')} → {n.status}
-                    </p>
-                  ))}
-                  {networkFails.length > 3 && (
-                    <p className="text-gray-400">+{networkFails.length - 3} more</p>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        <TechnicalDetails
+          pageUrl={pageUrl}
+          userAgent={userAgent}
+          screenWidth={screenWidth}
+          screenHeight={screenHeight}
+          formattedDate={formattedDate}
+          consoleLogs={consoleLogs}
+          networkFails={networkFails}
+        />
       </div>
 
       {/* ── Export modals ── */}
@@ -616,6 +556,166 @@ export default function BugChat({
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+function StatusCard({
+  status,
+  saving,
+  saved,
+  onUpdate,
+}: {
+  status: BugStatus
+  saving: boolean
+  saved: boolean
+  onUpdate: (s: BugStatus) => void
+}) {
+  return (
+    <div className="rounded-xl border border-gray-200 bg-white px-4 py-4">
+      <div className="mb-2.5 flex items-center justify-between">
+        <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Status</span>
+        {saving && <span className="text-xs text-gray-400">Saving…</span>}
+        {saved && (
+          <span className="flex items-center gap-1 text-xs text-green-600">
+            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+            </svg>
+            Saved
+          </span>
+        )}
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {(Object.entries(STATUS_LABELS) as [BugStatus, string][]).map(([val, label]) => (
+          <button
+            key={val}
+            onClick={() => onUpdate(val)}
+            className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-all ${
+              val === status
+                ? `${STATUS_COLORS[val]} ring-2 ring-offset-1 ring-current`
+                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function ScreenshotCard({
+  screenshotDataUrl,
+  open,
+  onToggle,
+}: {
+  screenshotDataUrl: string
+  open: boolean
+  onToggle: () => void
+}) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+      <button
+        onClick={onToggle}
+        className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
+      >
+        <span>Screenshot</span>
+        <span className="text-gray-400">{open ? '▲' : '▼'}</span>
+      </button>
+      {open && (
+        <div className="border-t border-gray-100 p-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={screenshotDataUrl}
+            alt="Bug screenshot"
+            className="w-full rounded-lg border border-gray-100 shadow-sm"
+          />
+        </div>
+      )}
+    </div>
+  )
+}
+
+function TechnicalDetails({
+  pageUrl,
+  userAgent,
+  screenWidth,
+  screenHeight,
+  formattedDate,
+  consoleLogs,
+  networkFails,
+}: {
+  pageUrl: string
+  userAgent: string
+  screenWidth: number
+  screenHeight: number
+  formattedDate: string
+  consoleLogs: Array<{ level: string; message: string; stack?: string }>
+  networkFails: Array<{ url: string; method: string; status: number; duration: number }>
+}) {
+  const consolErrors = consoleLogs.filter((l) => l.level === 'error' || l.level === 'ERROR')
+  const browserStr =
+    userAgent.match(/Chrome\/([\d.]+)/)?.[0] ??
+    userAgent.match(/Firefox\/([\d.]+)/)?.[0] ??
+    userAgent.slice(0, 60)
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+      <div className="border-b border-gray-100 px-4 py-3">
+        <p className="text-sm font-medium text-gray-700">Technical Details</p>
+      </div>
+      <div className="space-y-3 p-4 text-xs text-gray-600">
+        <div className="flex gap-2">
+          <span className="font-medium text-gray-400 w-16 shrink-0">URL</span>
+          <span className="break-all">{pageUrl}</span>
+        </div>
+        <div className="flex gap-2">
+          <span className="font-medium text-gray-400 w-16 shrink-0">Browser</span>
+          <span className="break-all">{browserStr}</span>
+        </div>
+        <div className="flex gap-2">
+          <span className="font-medium text-gray-400 w-16 shrink-0">Screen</span>
+          <span>{screenWidth}×{screenHeight}</span>
+        </div>
+        <div className="flex gap-2">
+          <span className="font-medium text-gray-400 w-16 shrink-0">Captured</span>
+          <span>{formattedDate}</span>
+        </div>
+        {consolErrors.length > 0 && (
+          <div>
+            <p className="mb-1 font-medium text-red-500">
+              {consolErrors.length} console error{consolErrors.length !== 1 ? 's' : ''}
+            </p>
+            <div className="space-y-1">
+              {consolErrors.slice(0, 3).map((e, i) => (
+                <p key={i} className="truncate rounded bg-red-50 px-2 py-1 text-red-700">
+                  {e.message}
+                </p>
+              ))}
+              {consolErrors.length > 3 && (
+                <p className="text-gray-400">+{consolErrors.length - 3} more</p>
+              )}
+            </div>
+          </div>
+        )}
+        {networkFails.length > 0 && (
+          <div>
+            <p className="mb-1 font-medium text-amber-600">
+              {networkFails.length} failed request{networkFails.length !== 1 ? 's' : ''}
+            </p>
+            <div className="space-y-1">
+              {networkFails.slice(0, 3).map((n, i) => (
+                <p key={i} className="truncate rounded bg-amber-50 px-2 py-1 text-amber-700">
+                  {n.method} {n.url.split('/').slice(-2).join('/')} → {n.status}
+                </p>
+              ))}
+              {networkFails.length > 3 && (
+                <p className="text-gray-400">+{networkFails.length - 3} more</p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

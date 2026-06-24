@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { NavHeader } from '@/components/nav-header'
 import { SessionPlayer, type ReplayEvent } from '@/components/session-player'
+import { AI_ENABLED } from '@/lib/flags'
 import BugChat from './bug-chat'
 
 export default async function BugPage({
@@ -93,6 +94,7 @@ export default async function BugPage({
         )}
 
         <BugChat
+          aiEnabled={AI_ENABLED}
           bugId={bug.id}
           initialMessages={bug.messages.map((m) => ({
             role: m.role,

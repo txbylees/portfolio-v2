@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { hashApiKey } from '@/lib/apikey'
 import { db } from '@/lib/db'
 import { generateInitialAnalysis } from '@/lib/claude'
+import { AI_ENABLED } from '@/lib/flags'
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -88,23 +89,26 @@ export async function POST(req: NextRequest) {
     },
   })
 
-  // Generate initial AI analysis — await so message is ready when page opens
-  try {
-    const initialMessage = await generateInitialAnalysis({
-      pageUrl: env.url,
-      pageTitle: env.title ?? null,
-      userAgent: env.userAgent,
-      consoleLogs,
-      networkFails,
-    })
-
-    if (initialMessage) {
-      await db.bugMessage.create({
-        data: { bugId: bug.id, role: 'ASSISTANT', content: initialMessage },
+  // Generate initial AI analysis — await so message is ready when page opens.
+  // Skipped entirely when the AI layer is disabled.
+  if (AI_ENABLED) {
+    try {
+      const initialMessage = await generateInitialAnalysis({
+        pageUrl: env.url,
+        pageTitle: env.title ?? null,
+        userAgent: env.userAgent,
+        consoleLogs,
+        networkFails,
       })
+
+      if (initialMessage) {
+        await db.bugMessage.create({
+          data: { bugId: bug.id, role: 'ASSISTANT', content: initialMessage },
+        })
+      }
+    } catch (err) {
+      console.error('[bugs/ingest] AI analysis failed:', err)
     }
-  } catch (err) {
-    console.error('[bugs/ingest] AI analysis failed:', err)
   }
 
   await db.apiKey
