@@ -13,15 +13,15 @@ const FEATURES = [
     icon: (
       <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
     ),
-    title: 'AI writes the ticket',
-    desc: 'Gemini analyses your console logs, network failures, and session data to write a structured bug report — title, severity, steps, root cause — in seconds.',
+    title: 'AI-assisted tickets',
+    desc: 'When enabled, Reprod\'s AI assistant analyses your console logs, network failures, and session data to draft a structured bug report — title, severity, steps, root cause.',
   },
   {
     icon: (
       <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
     ),
-    title: 'Playwright test included',
-    desc: 'Every bug ships with a TypeScript Playwright test that reproduces the issue. Drop it straight into your CI pipeline — no manual writing needed.',
+    title: 'Playwright test generation',
+    desc: 'With AI enabled, bugs can ship with a TypeScript Playwright test that reproduces the issue. Drop it straight into your CI pipeline — no manual writing needed.',
   },
   {
     icon: (
@@ -42,7 +42,7 @@ const FEATURES = [
       <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
     ),
     title: 'Export anywhere',
-    desc: 'One click to push the bug ticket to GitHub Issues, Jira, or ClickUp. The AI summary, steps, and severity are all pre-filled. No copy-pasting.',
+    desc: 'One click to push the bug to GitHub Issues, Jira, or ClickUp — the captured errors, failed requests, environment, and (when present) the AI summary are all pre-filled. No copy-pasting.',
   },
 ]
 
@@ -62,7 +62,7 @@ const STEPS = [
   {
     n: '03',
     title: 'Hit Ctrl+Shift+U',
-    desc: 'When something breaks, one shortcut captures everything and hands it to the AI.',
+    desc: 'When something breaks, one shortcut captures everything into a structured, shareable report.',
     color: 'bg-purple-50 text-purple-700',
   },
 ]
@@ -132,8 +132,10 @@ export default function LandingPage() {
               </h1>
 
               <p className="mb-8 text-lg leading-relaxed text-gray-400">
-                One keystroke captures console errors, network failures, a session recording,
-                and a screenshot. AI writes the ticket. You ship the fix.
+                One keystroke captures console errors, network failures, a full session
+                replay, and a screenshot — organised into a shareable bug report you can push
+                straight to GitHub, Jira, or ClickUp. AI-assisted ticket writing turns the
+                repro into a fix faster.
               </p>
 
               <div className="flex flex-wrap gap-3">
@@ -365,7 +367,7 @@ export default function LandingPage() {
                 <p className="mb-6 text-base leading-relaxed text-gray-400">
                   Reprod&apos;s backend separates the payload into its components — rrweb events,
                   console errors with stack traces, failed network requests — and immediately
-                  fires the diagnostic context at Gemini 2.0 Flash. Within seconds the AI
+                  fires the diagnostic context at its AI analysis engine. Within seconds the AI
                   returns its first analysis: what it believes went wrong, and one targeted
                   question to confirm your test case.
                 </p>
@@ -388,7 +390,7 @@ export default function LandingPage() {
                   <span className="h-2.5 w-2.5 rounded-full bg-red-500/70" />
                   <span className="h-2.5 w-2.5 rounded-full bg-yellow-500/70" />
                   <span className="h-2.5 w-2.5 rounded-full bg-green-500/70" />
-                  <span className="ml-2 text-[11px] font-medium text-gray-500">Gemini 2.0 Flash · initial analysis</span>
+                  <span className="ml-2 text-[11px] font-medium text-gray-500">AI · initial analysis</span>
                 </div>
                 <div className="p-5 space-y-3 text-xs leading-relaxed">
                   <div className="rounded-lg bg-gray-800 p-3">
@@ -417,7 +419,7 @@ export default function LandingPage() {
                 <h3 className="mb-4 text-2xl font-extrabold text-white">One reply. Full ticket generated.</h3>
                 <p className="mb-6 text-base leading-relaxed text-gray-400">
                   You answer the AI&apos;s question in one message. That&apos;s it. Reprod fires a second
-                  Gemini call with the full conversation and produces a complete structured bug
+                  AI call with the full conversation and produces a complete structured bug
                   report: severity rating, title, numbered steps to reproduce, an expected vs
                   actual comparison, suspected root cause from the logs, and a TypeScript
                   Playwright test generated to reproduce the bug automatically in CI.

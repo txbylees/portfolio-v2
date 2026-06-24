@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { getDiagnostics, diagnosticsMarkdown } from '@/lib/bug-export'
 
 interface ClickUpExportBody {
   apiToken: string
@@ -38,12 +39,15 @@ export async function POST(
   const severity = report?.severity ?? 'P3'
   const priorityMap: Record<string, number> = { P1: 1, P2: 2, P3: 3, P4: 4 }
 
+  const diagnostics = diagnosticsMarkdown(getDiagnostics(bug.consoleLogs, bug.networkFails))
+
   const descLines = [
     report?.summary ?? `Bug captured at ${bug.pageUrl}`,
     '',
     `**URL:** ${bug.pageUrl}`,
     `**Browser:** ${bug.userAgent.slice(0, 100)}`,
     '',
+    diagnostics,
     steps.length > 0
       ? `**Steps to Reproduce:**\n${steps.map((s, i) => `${i + 1}. ${s}`).join('\n')}`
       : '',

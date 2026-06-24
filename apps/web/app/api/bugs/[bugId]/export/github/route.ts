@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { getDiagnostics, diagnosticsMarkdown } from '@/lib/bug-export'
 
 interface GitHubExportBody {
   owner: string
@@ -37,6 +38,7 @@ export async function POST(
   const report = bug.report
   const steps = report ? (report.stepsToReproduce as string[]) : []
   const severity = report?.severity ?? 'P3'
+  const diagnostics = diagnosticsMarkdown(getDiagnostics(bug.consoleLogs, bug.networkFails))
 
   const body = [
     report?.summary ?? `Bug captured at ${bug.pageUrl}`,
@@ -47,6 +49,7 @@ export async function POST(
     `- **Screen:** ${bug.screenWidth}×${bug.screenHeight}`,
     `- **Captured:** ${bug.capturedAt.toISOString()}`,
     '',
+    diagnostics,
     steps.length > 0
       ? ['## Steps to Reproduce', ...steps.map((s, i) => `${i + 1}. ${s}`), ''].join('\n')
       : '',

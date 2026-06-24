@@ -254,6 +254,45 @@ export default function BugChat({
           consoleLogs={consoleLogs}
           networkFails={networkFails}
         />
+
+        {/* Export — uses the captured console/network data even without an AI report */}
+        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+          <div className="border-b border-gray-100 px-4 py-3">
+            <p className="text-sm font-medium text-gray-700">Export</p>
+          </div>
+          <div className="p-3">
+            {exportResult ? (
+              <a
+                href={exportResult.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-green-50 px-3 py-2 text-sm font-medium text-green-700 hover:bg-green-100"
+              >
+                ✓ Opened in {exportResult.label} →
+              </a>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="flex items-center text-xs font-medium text-gray-500">Send to:</span>
+                {(['github', 'jira', 'clickup'] as const).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setExportModal(p)}
+                    className="flex-1 rounded-md border border-gray-200 px-2 py-1.5 text-xs font-medium text-gray-600 hover:border-gray-300 hover:text-gray-900"
+                  >
+                    {p === 'github' ? 'GitHub' : p === 'clickup' ? 'ClickUp' : 'Jira'}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <ExportModals
+          exportModal={exportModal}
+          setExportModal={setExportModal}
+          exportLoading={exportLoading}
+          onExport={handleExport}
+        />
       </div>
     )
   }
@@ -495,67 +534,12 @@ export default function BugChat({
         />
       </div>
 
-      {/* ── Export modals ── */}
-      {exportModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-          onClick={() => setExportModal(null)}
-        >
-          <div
-            className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="mb-4 text-base font-semibold text-gray-900">
-              Export to {exportModal === 'github' ? 'GitHub Issues' : exportModal === 'jira' ? 'Jira' : 'ClickUp'}
-            </h3>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault()
-                handleExport(exportModal, new FormData(e.currentTarget))
-              }}
-              className="space-y-3"
-            >
-              {exportModal === 'github' && (
-                <>
-                  <Field name="owner" label="Owner / Org" placeholder="facebook" />
-                  <Field name="repo" label="Repository" placeholder="react" />
-                  <Field name="token" label="Personal Access Token" type="password" placeholder="ghp_..." />
-                </>
-              )}
-              {exportModal === 'jira' && (
-                <>
-                  <Field name="domain" label="Domain" placeholder="mycompany.atlassian.net" />
-                  <Field name="email" label="Email" type="email" placeholder="you@company.com" />
-                  <Field name="apiToken" label="API Token" type="password" placeholder="••••••" />
-                  <Field name="projectKey" label="Project Key" placeholder="QA" />
-                </>
-              )}
-              {exportModal === 'clickup' && (
-                <>
-                  <Field name="apiToken" label="API Token" type="password" placeholder="pk_..." />
-                  <Field name="listId" label="List ID" placeholder="123456789" />
-                </>
-              )}
-              <div className="flex gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => setExportModal(null)}
-                  className="flex-1 rounded-lg border border-gray-200 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={exportLoading}
-                  className="flex-1 rounded-lg bg-green-800 py-2 text-sm font-medium text-white hover:bg-green-900 disabled:opacity-50"
-                >
-                  {exportLoading ? 'Creating…' : 'Create Issue'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <ExportModals
+        exportModal={exportModal}
+        setExportModal={setExportModal}
+        exportLoading={exportLoading}
+        onExport={handleExport}
+      />
     </div>
   )
 }
@@ -715,6 +699,80 @@ function TechnicalDetails({
             </div>
           </div>
         )}
+      </div>
+    </div>
+  )
+}
+
+function ExportModals({
+  exportModal,
+  setExportModal,
+  exportLoading,
+  onExport,
+}: {
+  exportModal: 'github' | 'jira' | 'clickup' | null
+  setExportModal: (v: 'github' | 'jira' | 'clickup' | null) => void
+  exportLoading: boolean
+  onExport: (platform: 'github' | 'jira' | 'clickup', formData: FormData) => void
+}) {
+  if (!exportModal) return null
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      onClick={() => setExportModal(null)}
+    >
+      <div
+        className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="mb-4 text-base font-semibold text-gray-900">
+          Export to {exportModal === 'github' ? 'GitHub Issues' : exportModal === 'jira' ? 'Jira' : 'ClickUp'}
+        </h3>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            onExport(exportModal, new FormData(e.currentTarget))
+          }}
+          className="space-y-3"
+        >
+          {exportModal === 'github' && (
+            <>
+              <Field name="owner" label="Owner / Org" placeholder="facebook" />
+              <Field name="repo" label="Repository" placeholder="react" />
+              <Field name="token" label="Personal Access Token" type="password" placeholder="ghp_..." />
+            </>
+          )}
+          {exportModal === 'jira' && (
+            <>
+              <Field name="domain" label="Domain" placeholder="mycompany.atlassian.net" />
+              <Field name="email" label="Email" type="email" placeholder="you@company.com" />
+              <Field name="apiToken" label="API Token" type="password" placeholder="••••••" />
+              <Field name="projectKey" label="Project Key" placeholder="QA" />
+            </>
+          )}
+          {exportModal === 'clickup' && (
+            <>
+              <Field name="apiToken" label="API Token" type="password" placeholder="pk_..." />
+              <Field name="listId" label="List ID" placeholder="123456789" />
+            </>
+          )}
+          <div className="flex gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => setExportModal(null)}
+              className="flex-1 rounded-lg border border-gray-200 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={exportLoading}
+              className="flex-1 rounded-lg bg-green-800 py-2 text-sm font-medium text-white hover:bg-green-900 disabled:opacity-50"
+            >
+              {exportLoading ? 'Creating…' : 'Create Issue'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )

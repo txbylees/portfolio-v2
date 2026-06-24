@@ -1,7 +1,5 @@
 import type { NextConfig } from 'next'
 
-const nextConfig: NextConfig = {
-  transpilePackages: ['@reprod/shared', '@reprod/sdk'],
-}
+const nextConfig: NextConfig = {}
 
 export default nextConfig

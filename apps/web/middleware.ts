@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 
 const { auth } = NextAuth(authConfig)
 
-const PUBLIC_PATHS = ['/sign-in', '/sign-up', '/test']
+const PUBLIC_PATHS = ['/sign-in', '/sign-up']
 const AUTH_ONLY_PATHS = ['/sign-in', '/sign-up']
 
 export default auth((req) => {
@@ -25,5 +25,5 @@ export default auth((req) => {
 })
 
 export const config = {
-  matcher: ['/((?!api/auth|api/ingest|api/bugs/ingest|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!api/auth|api/bugs/ingest|_next/static|_next/image|favicon.ico).*)'],
 }

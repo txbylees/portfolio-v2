@@ -58,7 +58,7 @@ export function NewProjectForm({ orgId, orgSlug }: Props) {
             </svg>
           </span>
           <h1 className="text-2xl font-bold text-gray-900">New project</h1>
-          <p className="mt-1 text-sm text-gray-500">A project holds your API keys, sessions, and bug reports.</p>
+          <p className="mt-1 text-sm text-gray-500">A project holds your API keys and bug reports.</p>
         </div>
 
         <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">

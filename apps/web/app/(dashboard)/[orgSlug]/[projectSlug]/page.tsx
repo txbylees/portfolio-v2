@@ -4,31 +4,6 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { NavHeader } from '@/components/nav-header'
 
-function parseUA(ua: string): { browser: string; os: string } {
-  const browser =
-    /Edg\//.test(ua) ? 'Edge' :
-    /Chrome\//.test(ua) ? 'Chrome' :
-    /Firefox\//.test(ua) ? 'Firefox' :
-    /Safari\//.test(ua) ? 'Safari' : 'Unknown'
-  const os =
-    /iPhone|iPad/.test(ua) ? 'iOS' :
-    /Android/.test(ua) ? 'Android' :
-    /Windows/.test(ua) ? 'Windows' :
-    /Mac OS X/.test(ua) ? 'macOS' :
-    /Linux/.test(ua) ? 'Linux' : 'Unknown'
-  return { browser, os }
-}
-
-function formatDuration(startedAt: Date, lastEventAt: Date): string {
-  const ms = new Date(lastEventAt).getTime() - new Date(startedAt).getTime()
-  if (ms < 1000) return '<1s'
-  const s = Math.floor(ms / 1000)
-  if (s < 60) return `${s}s`
-  const m = Math.floor(s / 60)
-  const rem = s % 60
-  return rem > 0 ? `${m}m ${rem}s` : `${m}m`
-}
-
 const SEVERITY_COLORS: Record<string, string> = {
   P1: 'bg-red-100 text-red-700',
   P2: 'bg-orange-100 text-orange-700',
@@ -68,7 +43,7 @@ export default async function ProjectPage({
       members: { where: { userId: session.user.id } },
       projects: {
         where: { slug: projectSlug },
-        include: { _count: { select: { sessions: true, apiKeys: true, bugs: true } } },
+        include: { _count: { select: { apiKeys: true, bugs: true } } },
       },
     },
   })
@@ -81,7 +56,6 @@ export default async function ProjectPage({
 
   const [
     recentBugs,
-    recentSessions,
     openBugCount,
     inProgressBugCount,
     bugsThisWeek,
@@ -89,28 +63,15 @@ export default async function ProjectPage({
     db.bug.findMany({
       where: { projectId: project.id },
       orderBy: { capturedAt: 'desc' },
-      take: 6,
+      take: 8,
       include: { report: { select: { title: true, severity: true } } },
-    }),
-    db.session.findMany({
-      where: { projectId: project.id },
-      orderBy: { startedAt: 'desc' },
-      take: 6,
-      select: {
-        id: true,
-        url: true,
-        userAgent: true,
-        startedAt: true,
-        lastEventAt: true,
-        _count: { select: { consoleLogs: true, networkRequests: true } },
-      },
     }),
     db.bug.count({ where: { projectId: project.id, status: 'OPEN' } }),
     db.bug.count({ where: { projectId: project.id, status: 'IN_PROGRESS' } }),
     db.bug.count({ where: { projectId: project.id, capturedAt: { gte: oneWeekAgo } } }),
   ])
 
-  const hasData = project._count.bugs > 0 || project._count.sessions > 0
+  const hasData = project._count.bugs > 0
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -239,12 +200,10 @@ export default async function ProjectPage({
           </div>
         )}
 
-        {/* ── Main two-column layout ── */}
+        {/* ── Recent bugs ── */}
         {hasData && (
-          <div className="grid gap-6 lg:grid-cols-5">
-
-            {/* Recent bugs — wider column */}
-            <div className="lg:col-span-3">
+          <div>
+            <div>
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="font-semibold text-gray-900">Recent bugs</h2>
                 <Link
@@ -305,73 +264,6 @@ export default async function ProjectPage({
                 </div>
               )}
             </div>
-
-            {/* Recent sessions — narrower column */}
-            <div className="lg:col-span-2">
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="font-semibold text-gray-900">Recent sessions</h2>
-                <span className="text-xs text-gray-400">{project._count.sessions} total</span>
-              </div>
-
-              {recentSessions.length === 0 ? (
-                <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-white py-10 text-center">
-                  <svg className="mb-2 h-8 w-8 text-gray-300" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" />
-                  </svg>
-                  <p className="text-sm text-gray-400">No sessions recorded yet</p>
-                </div>
-              ) : (
-                <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-                  {recentSessions.map((s) => {
-                    const { browser, os } = parseUA(s.userAgent)
-                    const duration = formatDuration(s.startedAt, s.lastEventAt)
-                    const hasErrors = s._count.consoleLogs > 0
-                    const hasFailedReqs = s._count.networkRequests > 0
-
-                    return (
-                      <Link
-                        key={s.id}
-                        href={`/${orgSlug}/${projectSlug}/sessions/${s.id}`}
-                        className="group flex items-start gap-3 border-b border-gray-100 px-4 py-3.5 last:border-0 hover:bg-gray-50 transition-colors"
-                      >
-                        {/* Status dot */}
-                        <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${hasErrors ? 'bg-red-400' : hasFailedReqs ? 'bg-amber-400' : 'bg-green-400'}`} />
-
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-xs font-medium text-gray-700 group-hover:text-green-800">
-                            {s.url.replace(/^https?:\/\//, '')}
-                          </p>
-                          <div className="mt-1 flex items-center gap-1.5 text-[11px] text-gray-400">
-                            <span>{browser} · {os}</span>
-                            <span>·</span>
-                            <span>{duration}</span>
-                          </div>
-                          {(hasErrors || hasFailedReqs) && (
-                            <div className="mt-1 flex gap-1.5">
-                              {hasErrors && (
-                                <span className="text-[10px] font-medium text-red-500">
-                                  {s._count.consoleLogs} error{s._count.consoleLogs !== 1 ? 's' : ''}
-                                </span>
-                              )}
-                              {hasFailedReqs && (
-                                <span className="text-[10px] font-medium text-amber-600">
-                                  {s._count.networkRequests} failed
-                                </span>
-                              )}
-                            </div>
-                          )}
-                        </div>
-
-                        <svg className="mt-1 h-3.5 w-3.5 shrink-0 text-gray-300 transition-colors group-hover:text-gray-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                        </svg>
-                      </Link>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-
           </div>
         )}
 

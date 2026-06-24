@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { getDiagnostics } from '@/lib/bug-export'
 
 interface JiraExportBody {
   domain: string   // e.g. "mycompany.atlassian.net"
@@ -38,6 +39,29 @@ export async function POST(
   const report = bug.report
   const steps = report ? (report.stepsToReproduce as string[]) : []
   const severity = report?.severity ?? 'P3'
+  const { consoleErrors, networkFails } = getDiagnostics(bug.consoleLogs, bug.networkFails)
+
+  // ADF nodes for captured diagnostics (only when there's something to show)
+  const adfHeading = (text: string) => ({
+    type: 'heading',
+    attrs: { level: 3 },
+    content: [{ type: 'text', text }],
+  })
+  const adfBulletList = (items: string[]) => ({
+    type: 'bulletList',
+    content: items.map((text) => ({
+      type: 'listItem',
+      content: [{ type: 'paragraph', content: [{ type: 'text', text }] }],
+    })),
+  })
+  const diagnosticsNodes = [
+    ...(consoleErrors.length > 0
+      ? [adfHeading('Console Errors'), adfBulletList(consoleErrors.map((e) => e.message))]
+      : []),
+    ...(networkFails.length > 0
+      ? [adfHeading('Failed Requests'), adfBulletList(networkFails.map((n) => `${n.method} ${n.url} → ${n.status}`))]
+      : []),
+  ]
 
   const priorityMap: Record<string, string> = {
     P1: 'Highest',
@@ -66,6 +90,7 @@ export async function POST(
           { type: 'listItem', content: [{ type: 'paragraph', content: [{ type: 'text', text: `Browser: ${bug.userAgent.slice(0, 100)}` }] }] },
         ],
       },
+      ...diagnosticsNodes,
       ...(steps.length > 0
         ? [
             { type: 'heading', attrs: { level: 3 }, content: [{ type: 'text', text: 'Steps to Reproduce' }] },

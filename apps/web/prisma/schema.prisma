@@ -89,7 +89,6 @@ model Project {
   webhookUrl     String?
   organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
   apiKeys        ApiKey[]
-  sessions       Session[]
   bugs           Bug[]
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
@@ -181,73 +180,4 @@ model BugMessage {
 enum MessageRole {
   USER
   ASSISTANT
-}
-
-// ─── Session recording models ─────────────────────────────────────────────────
-
-model Session {
-  id              String           @id @default(cuid())
-  projectId       String
-  url             String
-  userAgent       String
-  screenWidth     Int
-  screenHeight    Int
-  project         Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  events          SessionEvent[]
-  consoleLogs     ConsoleLog[]
-  networkRequests NetworkRequest[]
-  startedAt       DateTime         @default(now())
-  // Updated with each ingest chunk — used to detect stale/closed sessions
-  lastEventAt     DateTime         @default(now())
-
-  @@index([projectId])
-  @@index([projectId, startedAt])
-}
-
-model SessionEvent {
-  id        String  @id @default(cuid())
-  sessionId String
-  type      Int
-  data      Json
-  // BigInt: rrweb timestamps are ms since epoch — exceeds Int32 range
-  timestamp BigInt
-  // Chunk sequence number — used to reassemble events in order
-  sequence  Int
-  session   Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-
-  @@index([sessionId, sequence])
-}
-
-model ConsoleLog {
-  id        String   @id @default(cuid())
-  sessionId String
-  level     LogLevel
-  message   String
-  stack     String?
-  timestamp BigInt
-  session   Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-
-  @@index([sessionId])
-}
-
-enum LogLevel {
-  ERROR
-  WARN
-}
-
-model NetworkRequest {
-  id           String  @id @default(cuid())
-  sessionId    String
-  url          String
-  method       String
-  status       Int
-  duration     Int
-  timestamp    BigInt
-  requestBody  String?
-  responseBody String?
-  session      Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-
-  @@index([sessionId])
-  // Enables fast "show me all 500s in this session" queries
-  @@index([sessionId, status])
 }

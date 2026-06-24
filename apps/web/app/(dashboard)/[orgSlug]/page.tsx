@@ -21,7 +21,7 @@ export default async function OrgPage({
       members: { where: { userId: session.user.id } },
       projects: {
         orderBy: { createdAt: 'desc' },
-        include: { _count: { select: { sessions: true } } },
+        include: { _count: { select: { bugs: true } } },
       },
     },
   })
@@ -57,7 +57,7 @@ export default async function OrgPage({
               </svg>
             </div>
             <p className="mb-1 font-medium text-gray-700">No projects yet</p>
-            <p className="mb-6 text-sm text-gray-500">Create a project to start recording sessions.</p>
+            <p className="mb-6 text-sm text-gray-500">Create a project to start capturing bugs.</p>
             <Link
               href={`/${orgSlug}/projects/new`}
               className="rounded-lg bg-green-800 px-4 py-2 text-sm font-medium text-white hover:bg-green-900 transition-colors"
@@ -87,7 +87,7 @@ export default async function OrgPage({
                 <div className="flex items-center gap-3 text-sm text-gray-500">
                   <span className="flex items-center gap-1.5">
                     <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
-                    {project._count.sessions} session{project._count.sessions !== 1 ? 's' : ''}
+                    {project._count.bugs} bug{project._count.bugs !== 1 ? 's' : ''}
                   </span>
                   <svg className="h-4 w-4 text-gray-300 group-hover:text-green-600 transition-colors" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
